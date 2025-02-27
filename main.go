@@ -61,25 +61,49 @@ func main() {
 	dealerCards, cardsDeck := cardsDeck.deal(numToDeal)
 	playerCards, cardsDeck := cardsDeck.deal(numToDeal)
 
-	// dealer := Player{
-	// 	faceUp:   Deck{dealerCards[0]},
-	// 	faceDown: Deck{dealerCards[1]},
-	// 	total:    dealerCards[0].num[0],
-	// }
+	dealer := Player{
+		faceUp:   dealerCards[:len(dealerCards)-1],
+		faceDown: Deck{dealerCards[len(dealerCards)-1]},
+		total:    0,
+	}
+	dealer.total = getTotal(dealer.faceUp)
 
-	fmt.Println("Here are my cards: ")
-	for i := 0; i < numToDeal; i++ {
-		if i == numToDeal-1 {
-			PrintCard(dealerCards[i], false)
+	player := Player{
+		faceUp:   playerCards,
+		faceDown: nil,
+		total:    0,
+	}
+	player.total = getTotal(player.faceUp)
+
+	fmt.Println("\nHere are my cards: ")
+	dealer.print()
+
+	fmt.Println("\nHere are your cards: ")
+	player.print()
+}
+
+func getTotal(cards Deck) int {
+	total := 0
+	acesIndex := []int{}
+
+	for index, card := range cards {
+		if card.value != Ace {
+			total += card.num[0]
 		} else {
-			PrintCard(dealerCards[i], true)
+			acesIndex = append(acesIndex, index)
 		}
 	}
 
-	fmt.Println("Here are your cards: ")
-	for i := 0; i < numToDeal; i++ {
-		PrintCard(playerCards[i], true)
+	for i := 0; i < len(acesIndex); i++ {
+		lowerValue, higherValue := cards[acesIndex[i]].num[0], cards[acesIndex[i]].num[1]
+		if total+higherValue > 21 {
+			total += lowerValue
+		} else {
+			total += higherValue
+		}
 	}
+
+	return total
 }
 
 func (v Value) getNum() []int {
@@ -125,13 +149,29 @@ func (d Deck) deal(num int) (Deck, Deck) {
 	return d[:num], d[num:]
 }
 
-func PrintCard(card Card, faceUp bool) {
+func (p Player) print() {
+	if p.faceUp != nil {
+		for _, card := range p.faceUp {
+			printCard(card, true)
+		}
+	}
+
+	if p.faceDown != nil {
+		for _, card := range p.faceDown {
+			printCard(card, false)
+		}
+	}
+
+	fmt.Println("Total: ", p.total)
+}
+
+func printCard(card Card, show bool) {
 	width := 9
 	height := 7
 
 	fmt.Println("┌─" + strings.Repeat("─", width-2) + "─┐")
 
-	if faceUp {
+	if show {
 		fmt.Printf("│ %-"+fmt.Sprintf("%d", width-4)+"s   │\n", card.value)
 
 		fmt.Println("│ " + strings.Repeat(" ", width-2) + " │")
