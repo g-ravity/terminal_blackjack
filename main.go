@@ -80,6 +80,50 @@ func main() {
 
 	fmt.Println("\nHere are your cards: ")
 	player.print()
+
+	if player.total == 21 {
+		fmt.Println("BLACKJACK!")
+
+		dealer.faceUp = append(dealer.faceUp, dealer.faceDown...)
+		dealer.faceDown = nil
+		dealer.total = getTotal(dealer.faceUp)
+
+		fmt.Println("\nMy cards are: ")
+		dealer.print()
+
+		if dealer.total == 21 {
+			fmt.Println("\nDealer has BLACKJACK! It's a TIE.")
+		} else {
+			fmt.Println("\nYou WIN")
+		}
+	} else {
+		getUserChoice()
+	}
+}
+
+func getUserChoice() {
+	var choice string
+
+	fmt.Print("\nDo you want to hit or stand? (h/s): ")
+	fmt.Scanln(&choice)
+	choice = strings.ToLower(strings.TrimSpace(choice))
+
+	if choice != "h" && choice != "s" {
+		fmt.Println("Invalid choice. Please enter 'h' for hit or 's' for stand.")
+		getUserChoice()
+	} else if choice == "h" {
+		fmt.Println("Hitting!")
+	} else if choice == "s" {
+		fmt.Println("Standing.")
+	}
+}
+
+func (p Player) handleHit() {
+
+}
+
+func (p Player) handleStand() {
+
 }
 
 func getTotal(cards Deck) int {
@@ -150,6 +194,8 @@ func (d Deck) deal(num int) (Deck, Deck) {
 }
 
 func (p Player) print() {
+	fmt.Println()
+
 	if p.faceUp != nil {
 		for _, card := range p.faceUp {
 			printCard(card, true)
