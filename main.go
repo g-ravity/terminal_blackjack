@@ -43,21 +43,31 @@ type Card struct {
 
 type Deck []Card
 
+type PlayerStatus string
+
+const (
+	Hitting  PlayerStatus = "h"
+	Standing PlayerStatus = "s"
+)
+
 type Player struct {
 	faceUp   Deck
 	faceDown Deck
 	total    int
+	status   PlayerStatus
 }
 
 var dealer = Player{
 	faceUp:   nil,
 	faceDown: nil,
 	total:    0,
+	status:   Hitting,
 }
 var player = Player{
 	faceUp:   nil,
 	faceDown: nil,
 	total:    0,
+	status:   Hitting,
 }
 
 var cardsDeck Deck
@@ -88,26 +98,11 @@ func main() {
 	player.print()
 
 	if player.total == 21 {
-		fmt.Println("BLACKJACK!")
-
-		dealer.faceUp = append(dealer.faceUp, dealer.faceDown...)
-		dealer.faceDown = nil
-		dealer.total = getTotal(dealer.faceUp)
-
-		fmt.Println("\nMy cards are: ")
-		dealer.print()
-
-		if dealer.total == 21 {
-			fmt.Println("\nDealer has BLACKJACK! It's a TIE.")
-		} else {
-			fmt.Println("\nYou WIN")
-		}
-	} else {
-		getUserChoice()
+		player.handleStand()
 	}
 }
 
-func getUserChoice() {
+func getPlayerChoice() {
 	var choice string
 
 	fmt.Print("\nDo you want to hit or stand? (h/s): ")
@@ -116,25 +111,123 @@ func getUserChoice() {
 
 	if choice != "h" && choice != "s" {
 		fmt.Println("Invalid choice. Please enter 'h' for hit or 's' for stand.")
-		getUserChoice()
+		getPlayerChoice()
 	} else if choice == "h" {
 		fmt.Println("Hitting!")
+
 		player.handleHit()
 	} else if choice == "s" {
 		fmt.Println("Standing.")
+
+		revealDealerCards()
 		player.handleStand()
 	}
 }
 
-func (p *Player) handleHit() {
-	playerCard, _ := cardsDeck.deal(1)
-	p.addToHand(playerCard)
+func getDealerChoice() {
+	if dealer.total < 17 {
+		fmt.Println("Dealer is Hitting!")
 
+		dealer.handleHit()
+	} else {
+		fmt.Println("Dealer is Standing.")
+
+		dealer.handleStand()
+	}
+}
+
+func revealDealerCards() {
+	dealer.faceUp = append(dealer.faceUp, dealer.faceDown...)
+	dealer.faceDown = nil
+	dealer.total = getTotal(dealer.faceUp)
+
+	fmt.Println("\nMy cards are: ")
+	dealer.print()
+}
+
+func isBlackJack(p Player) bool {
+	return len(p.faceUp) == 2 && p.total == 21
+}
+
+func checkGameLogic() bool {
+	isGameOver := false
+
+	if player.total > 21 {
+		fmt.Println("BUST!")
+		fmt.Println("\nYou LOST")
+
+		isGameOver = true
+	} else if player.status == Standing {
+		if isBlackJack(player) {
+			fmt.Println("\nBLACKJACK!")
+		}
+
+		revealDealerCards()
+
+		if isBlackJack(player) {
+			if isBlackJack(dealer) {
+				fmt.Println("\nDealer has BLACKJACK! It's a TIE.")
+			} else {
+				fmt.Println("\nYou WIN")
+			}
+
+			isGameOver = true
+		} else if isBlackJack(dealer) {
+			fmt.Println("\nDealer has BLACKJACK! You LOST.")
+
+			isGameOver = true
+		} else if dealer.total > 21 {
+			fmt.Println("\nDealer BUST! You WIN.")
+
+			isGameOver = true
+		} else if dealer.status == Standing {
+			if player.total < dealer.total {
+				fmt.Println("\nDealer has a higher total. You LOST.")
+			} else if player.total > dealer.total {
+				fmt.Println("\nYou have a higher total. You WIN.")
+			} else {
+				fmt.Println("\nIt's a TIE.")
+			}
+
+			isGameOver = true
+		}
+	}
+
+	return isGameOver
+}
+
+func getChoice() {
+	if player.status == Hitting {
+		getPlayerChoice()
+	} else if player.status == Standing {
+		getDealerChoice()
+	}
+}
+
+func (p *Player) handleHit() {
+	var playerCard Deck
+
+	playerCard, cardsDeck = cardsDeck.deal(1)
+	p.addToHand(playerCard)
 	p.print()
+
+	if p.total == 21 {
+		p.handleStand()
+
+		return
+	}
+
+	if !checkGameLogic() {
+		getChoice()
+	}
 }
 
 func (p *Player) handleStand() {
+	p.status = Standing
 
+	if !checkGameLogic() {
+		getChoice()
+	}
 }
 
 func (p *Player) addToHand(cards Deck) {
