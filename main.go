@@ -72,9 +72,18 @@ var player = Player{
 
 var cardsDeck Deck
 
+func printWithTypingEffect(text string, delay int) {
+	for _, char := range text {
+		fmt.Print(string(char))
+		time.Sleep(50 * time.Millisecond)
+	}
+	fmt.Println()
+	time.Sleep(time.Duration(delay) * time.Millisecond)
+}
+
 func main() {
-	fmt.Println("Hello, Welcome to the game of Blackjack!")
-	fmt.Println("I am the dealer.")
+	printWithTypingEffect("Hello, Welcome to the game of Blackjack!", 1000)
+	printWithTypingEffect("I am the dealer.", 1000)
 
 	cardsDeck = createDeck()
 	cardsDeck.shuffle()
@@ -91,46 +100,49 @@ func main() {
 	player.faceUp = playerCards
 	player.total = getTotal(player.faceUp)
 
-	fmt.Println("\nHere are my cards: ")
+	printWithTypingEffect("\nHere are my cards: ", 1000)
 	dealer.print()
 
-	fmt.Println("\nHere are your cards: ")
+	printWithTypingEffect("\nHere are your cards: ", 1000)
 	player.print()
+
+	time.Sleep(300 * time.Millisecond)
 
 	if player.total == 21 {
 		player.handleStand()
+	} else {
+		getChoice()
 	}
 }
 
 func getPlayerChoice() {
 	var choice string
 
-	fmt.Print("\nDo you want to hit or stand? (h/s): ")
+	printWithTypingEffect("\nDo you want to hit or stand? (h/s): ", 300)
 	fmt.Scanln(&choice)
 	choice = strings.ToLower(strings.TrimSpace(choice))
 
 	if choice != "h" && choice != "s" {
-		fmt.Println("Invalid choice. Please enter 'h' for hit or 's' for stand.")
+		printWithTypingEffect("Invalid choice. Please enter 'h' for hit or 's' for stand.", 300)
 		getPlayerChoice()
 	} else if choice == "h" {
-		fmt.Println("Hitting!")
+		printWithTypingEffect("Hitting!", 300)
 
 		player.handleHit()
 	} else if choice == "s" {
-		fmt.Println("Standing.")
+		printWithTypingEffect("Standing.", 300)
 
-		revealDealerCards()
 		player.handleStand()
 	}
 }
 
 func getDealerChoice() {
 	if dealer.total < 17 {
-		fmt.Println("Dealer is Hitting!")
+		printWithTypingEffect("\nDealer is Hitting!", 500)
 
 		dealer.handleHit()
 	} else {
-		fmt.Println("Dealer is Standing.")
+		printWithTypingEffect("\nDealer is Standing.", 500)
 
 		dealer.handleStand()
 	}
@@ -141,7 +153,7 @@ func revealDealerCards() {
 	dealer.faceDown = nil
 	dealer.total = getTotal(dealer.faceUp)
 
-	fmt.Println("\nMy cards are: ")
+	printWithTypingEffect("\nMy cards are: ", 1000)
 	dealer.print()
 }
 
@@ -153,40 +165,42 @@ func checkGameLogic() bool {
 	isGameOver := false
 
 	if player.total > 21 {
-		fmt.Println("BUST!")
-		fmt.Println("\nYou LOST")
+		printWithTypingEffect("BUST!", 500)
+		printWithTypingEffect("\nYou LOST", 500)
 
 		isGameOver = true
 	} else if player.status == Standing {
 		if isBlackJack(player) {
-			fmt.Println("\nBLACKJACK!")
+			printWithTypingEffect("\nBLACKJACK!", 500)
 		}
 
-		revealDealerCards()
+		if len(dealer.faceDown) > 0 {
+			revealDealerCards()
+		}
 
 		if isBlackJack(player) {
 			if isBlackJack(dealer) {
-				fmt.Println("\nDealer has BLACKJACK! It's a TIE.")
+				printWithTypingEffect("\nDealer has BLACKJACK! It's a TIE.", 500)
 			} else {
-				fmt.Println("\nYou WIN")
+				printWithTypingEffect("\nYou WIN", 500)
 			}
 
 			isGameOver = true
 		} else if isBlackJack(dealer) {
-			fmt.Println("\nDealer has BLACKJACK! You LOST.")
+			printWithTypingEffect("\nDealer has BLACKJACK! You LOST.", 500)
 
 			isGameOver = true
 		} else if dealer.total > 21 {
-			fmt.Println("\nDealer BUST! You WIN.")
+			printWithTypingEffect("\nDealer BUST! You WIN.", 500)
 
 			isGameOver = true
 		} else if dealer.status == Standing {
 			if player.total < dealer.total {
-				fmt.Println("\nDealer has a higher total. You LOST.")
+				printWithTypingEffect("\nDealer has a higher total. You LOST.", 500)
 			} else if player.total > dealer.total {
-				fmt.Println("\nYou have a higher total. You WIN.")
+				printWithTypingEffect("\nYou have a higher total. You WIN.", 500)
 			} else {
-				fmt.Println("\nIt's a TIE.")
+				printWithTypingEffect("\nIt's a TIE.", 500)
 			}
 
 			isGameOver = true
@@ -308,16 +322,20 @@ func (p Player) print() {
 	if p.faceUp != nil {
 		for _, card := range p.faceUp {
 			printCard(card, true)
+			time.Sleep(500 * time.Millisecond)
 		}
 	}
 
 	if p.faceDown != nil {
 		for _, card := range p.faceDown {
 			printCard(card, false)
+			time.Sleep(500 * time.Millisecond)
 		}
 	}
 
-	fmt.Println("Total: ", p.total)
+	printWithTypingEffect("Total: ", 300)
+	time.Sleep(200 * time.Millisecond)
+	fmt.Println(p.total)
 }
 
 func printCard(card Card, show bool) {
