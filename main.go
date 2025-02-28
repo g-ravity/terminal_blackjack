@@ -19,8 +19,10 @@ func main() {
 
 	numToDeal := 2
 
-	dealerCards, cardsDeck := cardsDeck.deal(numToDeal)
-	playerCards, cardsDeck := cardsDeck.deal(numToDeal)
+	var dealerCards, playerCards Deck
+
+	dealerCards, cardsDeck = cardsDeck.deal(numToDeal)
+	playerCards, cardsDeck = cardsDeck.deal(numToDeal)
 
 	dealer.faceUp = dealerCards[:len(dealerCards)-1]
 	dealer.faceDown = Deck{dealerCards[len(dealerCards)-1]}

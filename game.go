@@ -8,7 +8,7 @@ func checkForFinish() bool {
 	isGameOver := false
 
 	if player.total > 21 {
-		printWithTypingEffect("BUST!", 500)
+		printWithTypingEffect("\nBUST!", 500)
 		printWithTypingEffect("\nYou LOST", 500)
 
 		isGameOver = true
