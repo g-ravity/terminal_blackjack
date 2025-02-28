@@ -12,7 +12,7 @@ go run main.go
 
 OR
 
-You can download the executable file called `terminal_blackjack` (download the .exe file for windows) and run it directly.
+You can download the executable file from the downloads folder for your operating system and run it directly.
 
 ## Gameplay
 
