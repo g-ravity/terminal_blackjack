@@ -49,11 +49,24 @@ type Player struct {
 	total    int
 }
 
+var dealer = Player{
+	faceUp:   nil,
+	faceDown: nil,
+	total:    0,
+}
+var player = Player{
+	faceUp:   nil,
+	faceDown: nil,
+	total:    0,
+}
+
+var cardsDeck Deck
+
 func main() {
 	fmt.Println("Hello, Welcome to the game of Blackjack!")
 	fmt.Println("I am the dealer.")
 
-	cardsDeck := createDeck()
+	cardsDeck = createDeck()
 	cardsDeck.shuffle()
 
 	numToDeal := 2
@@ -61,18 +74,11 @@ func main() {
 	dealerCards, cardsDeck := cardsDeck.deal(numToDeal)
 	playerCards, cardsDeck := cardsDeck.deal(numToDeal)
 
-	dealer := Player{
-		faceUp:   dealerCards[:len(dealerCards)-1],
-		faceDown: Deck{dealerCards[len(dealerCards)-1]},
-		total:    0,
-	}
+	dealer.faceUp = dealerCards[:len(dealerCards)-1]
+	dealer.faceDown = Deck{dealerCards[len(dealerCards)-1]}
 	dealer.total = getTotal(dealer.faceUp)
 
-	player := Player{
-		faceUp:   playerCards,
-		faceDown: nil,
-		total:    0,
-	}
+	player.faceUp = playerCards
 	player.total = getTotal(player.faceUp)
 
 	fmt.Println("\nHere are my cards: ")
@@ -113,17 +119,27 @@ func getUserChoice() {
 		getUserChoice()
 	} else if choice == "h" {
 		fmt.Println("Hitting!")
+		player.handleHit()
 	} else if choice == "s" {
 		fmt.Println("Standing.")
+		player.handleStand()
 	}
 }
 
-func (p Player) handleHit() {
+func (p *Player) handleHit() {
+	playerCard, _ := cardsDeck.deal(1)
+	p.addToHand(playerCard)
+
+	p.print()
+}
+
+func (p *Player) handleStand() {
 
 }
 
-func (p Player) handleStand() {
-
+func (p *Player) addToHand(cards Deck) {
+	p.faceUp = append(p.faceUp, cards...)
+	p.total = getTotal(p.faceUp)
 }
 
 func getTotal(cards Deck) int {
