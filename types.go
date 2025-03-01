@@ -48,3 +48,8 @@ type Player struct {
 	total    int
 	status   PlayerStatus
 }
+
+type PlayerAction interface {
+	handleHit()
+	handleStand()
+}

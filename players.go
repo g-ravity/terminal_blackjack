@@ -18,7 +18,7 @@ var player = Player{
 	status:   Hitting,
 }
 
-func getPlayerChoice() {
+func getPlayerChoice(action PlayerAction) {
 	var choice string
 
 	printWithTypingEffect("\nDo you want to hit or stand? (h/s): ", 300)
@@ -27,35 +27,35 @@ func getPlayerChoice() {
 
 	if choice != "h" && choice != "s" {
 		printWithTypingEffect("Invalid choice. Please enter 'h' for hit or 's' for stand.", 300)
-		getPlayerChoice()
+		getPlayerChoice(action)
 	} else if choice == "h" {
 		printWithTypingEffect("Hitting!", 300)
 
-		player.handleHit()
+		action.handleHit()
 	} else if choice == "s" {
 		printWithTypingEffect("Standing.", 300)
 
-		player.handleStand()
+		action.handleStand()
 	}
 }
 
-func getDealerChoice() {
+func getDealerChoice(action PlayerAction) {
 	if dealer.total < 17 || (dealer.total == 17 && containsValue(dealer.faceUp, Ace)) {
 		printWithTypingEffect("\nDealer is Hitting!", 500)
 
-		dealer.handleHit()
+		action.handleHit()
 	} else {
 		printWithTypingEffect("\nDealer is Standing.", 500)
 
-		dealer.handleStand()
+		action.handleStand()
 	}
 }
 
 func getChoice() {
 	if player.status == Hitting {
-		getPlayerChoice()
+		getPlayerChoice(&player)
 	} else if player.status == Standing {
-		getDealerChoice()
+		getDealerChoice(&dealer)
 	}
 }
 
