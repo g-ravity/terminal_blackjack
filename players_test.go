@@ -101,21 +101,92 @@ func TestGetDealerChoice(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			mock := mockPlayer{hitCalled: false, standCalled: false}
 			tt.setup()
+
 			for i, card := range dealer.faceUp {
 				dealer.faceUp[i].num = card.value.getNum()
 			}
 			dealer.total = getTotal(dealer.faceUp)
 
-			mock := &mockPlayer{hitCalled: false, standCalled: false}
-
-			getDealerChoice(mock)
+			getDealerChoice(&mock)
 
 			if tt.wantHit && !mock.hitCalled {
 				t.Error("Expected dealer to hit but they didn't")
 			}
 			if !tt.wantHit && !mock.standCalled {
 				t.Error("Expected dealer to stand but they didn't")
+			}
+		})
+	}
+}
+
+func TestAddToHand(t *testing.T) {
+	tests := []struct {
+		name        string
+		initialHand Deck
+		cardsToAdd  Deck
+		wantTotal   int
+		wantFaceUp  int
+	}{
+		{
+			name:        "Add single card to empty hand",
+			initialHand: nil,
+			cardsToAdd: Deck{
+				Card{suit: Hearts, value: Ten, num: Ten.getNum()},
+			},
+			wantTotal:  10,
+			wantFaceUp: 1,
+		},
+		{
+			name:        "Add multiple cards to empty hand",
+			initialHand: nil,
+			cardsToAdd: Deck{
+				Card{suit: Hearts, value: Ten, num: Ten.getNum()},
+				Card{suit: Spades, value: Five, num: Five.getNum()},
+			},
+			wantTotal:  15,
+			wantFaceUp: 2,
+		},
+		{
+			name: "Add card to existing hand",
+			initialHand: Deck{
+				Card{suit: Hearts, value: Ten, num: Ten.getNum()},
+			},
+			cardsToAdd: Deck{
+				Card{suit: Spades, value: Five, num: Five.getNum()},
+			},
+			wantTotal:  15,
+			wantFaceUp: 2,
+		},
+		{
+			name: "Add Ace to existing hand",
+			initialHand: Deck{
+				Card{suit: Hearts, value: Six, num: Six.getNum()},
+			},
+			cardsToAdd: Deck{
+				Card{suit: Spades, value: Ace, num: Ace.getNum()},
+			},
+			wantTotal:  17,
+			wantFaceUp: 2,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			p := Player{
+				faceUp: tt.initialHand,
+				total:  getTotal(tt.initialHand),
+			}
+
+			p.addToHand(tt.cardsToAdd)
+
+			if p.total != tt.wantTotal {
+				t.Errorf("addToHand() got total = %v, want %v", p.total, tt.wantTotal)
+			}
+
+			if len(p.faceUp) != tt.wantFaceUp {
+				t.Errorf("addToHand() got faceUp length = %v, want %v", len(p.faceUp), tt.wantFaceUp)
 			}
 		})
 	}
