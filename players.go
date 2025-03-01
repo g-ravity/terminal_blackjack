@@ -40,7 +40,7 @@ func getPlayerChoice() {
 }
 
 func getDealerChoice() {
-	if dealer.total < 17 || (dealer.total == 17 && contains(dealer.faceUp, Ace)) {
+	if dealer.total < 17 || (dealer.total == 17 && containsValue(dealer.faceUp, Ace)) {
 		printWithTypingEffect("\nDealer is Hitting!", 500)
 
 		dealer.handleHit()
@@ -86,11 +86,15 @@ func getTotal(cards Deck) int {
 	}
 
 	for i := 0; i < len(acesIndex); i++ {
-		lowerValue, higherValue := cards[acesIndex[i]].num[0], cards[acesIndex[i]].num[1]
-		if total+higherValue > 21 {
-			total += lowerValue
-		} else {
-			total += higherValue
+		lowerValue := cards[acesIndex[i]].num[0]
+		total += lowerValue
+	}
+
+	if len(acesIndex) > 0 {
+		aceValueDiff := cards[acesIndex[0]].num[1] - cards[acesIndex[0]].num[0]
+
+		if 21-total >= aceValueDiff {
+			total += aceValueDiff
 		}
 	}
 
