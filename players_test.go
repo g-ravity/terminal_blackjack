@@ -119,6 +119,8 @@ func TestGetDealerChoice(t *testing.T) {
 			}
 		})
 	}
+
+	resetGlobals()
 }
 
 func TestAddToHand(t *testing.T) {
@@ -190,4 +192,6 @@ func TestAddToHand(t *testing.T) {
 			}
 		})
 	}
+
+	resetGlobals()
 }

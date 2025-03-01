@@ -15,6 +15,22 @@ func isUnique(deck Deck) bool {
 	return true
 }
 
+func resetGlobals() {
+	cardsDeck = createDeck()
+	player = Player{
+		faceUp:   nil,
+		faceDown: nil,
+		status:   Hitting,
+		total:    0,
+	}
+	dealer = Player{
+		faceUp:   nil,
+		faceDown: nil,
+		status:   Hitting,
+		total:    0,
+	}
+}
+
 func TestCreateDeck(t *testing.T) {
 	deck := createDeck()
 
