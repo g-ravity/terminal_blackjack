@@ -13,3 +13,13 @@ func printWithTypingEffect(text string, delay int) {
 	fmt.Println()
 	time.Sleep(time.Duration(delay) * time.Millisecond)
 }
+
+func contains(cards Deck, value Value) bool {
+	for _, card := range cards {
+		if card.value == value {
+			return true
+		}
+	}
+
+	return false
+}

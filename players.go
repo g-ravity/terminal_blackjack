@@ -40,7 +40,7 @@ func getPlayerChoice() {
 }
 
 func getDealerChoice() {
-	if dealer.total < 17 {
+	if dealer.total < 17 || (dealer.total == 17 && contains(dealer.faceUp, Ace)) {
 		printWithTypingEffect("\nDealer is Hitting!", 500)
 
 		dealer.handleHit()
